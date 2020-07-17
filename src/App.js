@@ -1,51 +1,52 @@
 import React from 'react';
+import axios from "axios";
+import Movie from "./Movie";
+import "./App.css";
 
-function Food({ name, picture, rating }) {
-    return ( < div >
-        <h2> I like { name } </h2>
-        <h4> { rating }/5.0 </h4>
-        <img src = { picture } alt = { name }/>
-        </div>);
+class App extends React.Component{
+    state = {
+       isLoading : true,
+       movies : []
+    };
+
+    getMovies = async() =>{
+        const{
+            data : {
+                data : {movies}
+            }
+        } = await axios.get("https://yts.mx/api/v2/list_movies.json?sort_by=rating");
+        this.setState({movies : movies, isLoading : false});
     }
 
-    const foodILike = [{
-            id: 1,
-            name: "Kimchi",
-            image: "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcSiXWgh16oNDLdhSZwvLtcJCIEmFZ5utG0hzw&usqp=CAU",
-            rating: 4.8
-        },
-        {
-            id: 2,
-            name: "samgyopsal",
-            image: "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcSygiK7oKoRxwNssUNIsV-HeK48MsOi7A6VLg&usqp=CAU",
-            rating: 5.0
-        },
-        {
-            id: 3,
-            name: "Bibimbap",
-            image: "https://recipe1.ezmember.co.kr/cache/recipe/2018/10/03/355b5cd5c3beb1a775c82ee425dcd1931.jpg",
-            rating: 3.4
-        }
-    ]
-
-    Food.proptTypes = {
-
+    componentDidMount(){
+        this.getMovies();
     }
-
-    function renderFood(dish) {
-        console.log(dish);
-        return <Food key = { dish.id }
-        name = { dish.name }
-        picture = { dish.image }
-        rating = { dish.rating }
-        />;
+    render(){
+        const { isLoading, movies } = this.state;
+        console.log(movies);
+        return <section className="container">
+            {isLoading ? (
+            <div className="loader">
+                <span className="loader__text_">Loading...</span>
+            </div>
+            ) : (
+                <div className="movies">
+                  {movies.map(movie => (
+                    <Movie
+                    key={movie.id}
+                    id={movie.id}
+                    year={movie.year} 
+                    title={movie.title} 
+                    summary={movie.summary} 
+                    poster={movie.medium_cover_image}
+                    genres={movie.genres}
+                />
+                ))}
+                </div>
+            )}
+            </section>;
     }
+}
 
-    function App() {
-        return ( <
-            div > { foodILike.map(renderFood) } <
-            /div> 
-        );
-    }
 
-    export default App;
+export default App;
